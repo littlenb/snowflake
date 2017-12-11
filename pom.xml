@@ -7,7 +7,7 @@
 	<version>1.0.0</version>
 
 	<name>snow-flake</name>
-	<description>Java code implements Twitter SnowFlake，generate ID for Long type(64 bits).</description>
+	<description>Java code implements Twitter SnowFlake，generate unique ID for Long type(64 bits).</description>
 	<url>https://github.com/cnsvili/snowflake</url>
 
 	<properties>
