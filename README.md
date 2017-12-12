@@ -9,7 +9,22 @@ Java code implements Twitter SnowFlake，generate unique ID for Long type(64 bit
 | 1bit | 41bits            | 10bits          | 12bits   |
 
 
-Reference Twitter SnowFlake and Baidu uid-generator
+Reference Twitter SnowFlake and Baidu uid-generator.
+
+
+## Quick Start
+
+### Add maven dependency
+
+```xml
+<dependency>
+    <groupId>com.github.cnsvili</groupId>
+    <artifactId>snowflake</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+### generate unique Id
 
 ```Java
 	long workerId = 1L;
