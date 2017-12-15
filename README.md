@@ -23,7 +23,7 @@ Reference Twitter SnowFlake and Baidu uid-generator.
 <dependency>
     <groupId>com.github.cnsvili</groupId>
     <artifactId>snowflake</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 

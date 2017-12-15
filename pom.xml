@@ -4,7 +4,7 @@
 	<groupId>com.github.cnsvili</groupId>
 	<artifactId>snowflake</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 
 	<name>snow-flake</name>
 	<description>Java code implements Twitter SnowFlake，generate unique ID for Long type(64 bits).</description>
