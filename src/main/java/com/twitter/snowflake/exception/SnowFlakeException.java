@@ -1,4 +1,4 @@
-package com.twitter.snowflake;
+package com.twitter.snowflake.exception;
 
 /**
  * SnowFlakeException
@@ -10,7 +10,7 @@ public class SnowFlakeException extends RuntimeException {
 	/**
 	 * Serial Version UID
 	 */
-	private static final long serialVersionUID = -27048199131316992L;
+	private static final long serialVersionUID = 861134492266247879L;
 
 	/**
 	 * Default constructor

@@ -1,7 +1,7 @@
-package com.twitter.snowflake;
+package com.twitter.snowflake.algorithm;
 
 /**
- * Allocate 64 bits for the UID(long)<br>
+ * Allocate 64 bits for the Unique ID(long)<br>
  * sign (fixed 1bit) -> millisecond -> workerId -> sequence(within the same
  * millisecond)
  * 
@@ -62,7 +62,7 @@ public class BitsAllocator {
 	}
 
 	/**
-	 * Allocate bits for UID according to delta millisecond & workerId &
+	 * Allocate bits for ID according to delta millisecond & workerId &
 	 * sequence<br>
 	 * <b>Note that: </b>The highest bit will always be 0 for sign
 	 * 
