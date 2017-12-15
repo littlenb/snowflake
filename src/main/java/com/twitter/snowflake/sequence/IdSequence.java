@@ -1,4 +1,4 @@
-package com.twitter.snowflake;
+package com.twitter.snowflake.sequence;
 
 /**
  * Represents a unique id generator.

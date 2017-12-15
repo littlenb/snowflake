@@ -1,4 +1,4 @@
-package com.twitter.snowflake.algorithm;
+package com.twitter.snowflake.sequence;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +28,7 @@ import com.twitter.snowflake.exception.SnowFlakeException;
  * @author svili
  *
  */
-public class SnowFlakeSequence {
+public class SnowFlakeSequence implements IdSequence{
 
 	private long epochMillis;
 	private long workerId;
@@ -39,13 +39,7 @@ public class SnowFlakeSequence {
 	/** Volatile fields caused by nextId() */
 	private long sequence = 0L;
 	private long lastMillis = -1L;
-
-	/*
-	 * public SnowFlakeSequence(int timeBits, int workerBits, int seqBits) { //
-	 * initialize bits allocator bitsAllocator = new BitsAllocator(timeBits,
-	 * workerBits, seqBits); }
-	 */
-
+	
 	public SnowFlakeSequence(int timeBits, int workerBits, int seqBits, long epochMillis, long workerId) {
 		// initialize bits allocator
 		bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits);
@@ -71,6 +65,7 @@ public class SnowFlakeSequence {
 	 * @throws SnowFlakeGenerateException
 	 *             in the case: Clock moved backwards; Exceeds the max timestamp
 	 */
+	@Override
 	public synchronized long nextId() {
 		long currentMillis = getCurrentMillis();
 
@@ -99,6 +94,7 @@ public class SnowFlakeSequence {
 		return bitsAllocator.allocate(currentMillis - epochMillis, workerId, sequence);
 	}
 
+	@Override
 	public String parse(long id) {
 		long totalBits = BitsAllocator.TOTAL_BITS;
 		long signBits = bitsAllocator.getSignBits();
@@ -133,7 +129,7 @@ public class SnowFlakeSequence {
 	}
 
 	/**
-	 * Get current second
+	 * Get current millisecond
 	 */
 	private long getCurrentMillis() {
 		long currentMilli = System.currentTimeMillis();

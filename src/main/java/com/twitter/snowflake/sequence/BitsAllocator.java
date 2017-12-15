@@ -1,4 +1,6 @@
-package com.twitter.snowflake.algorithm;
+package com.twitter.snowflake.sequence;
+
+import com.twitter.snowflake.exception.SnowFlakeException;
 
 /**
  * Allocate 64 bits for the Unique ID(long)<br>
@@ -43,7 +45,7 @@ public class BitsAllocator {
 		// make sure allocated 64 bits
 		int allocateTotalBits = signBits + timestampBits + workerIdBits + sequenceBits;
 		if (allocateTotalBits != TOTAL_BITS) {
-			throw new RuntimeException("allocate not enough 64 bits");
+			throw new SnowFlakeException("allocate not enough 64 bits");
 		}
 
 		// initialize bits
