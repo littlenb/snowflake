@@ -1,64 +1,64 @@
 package com.svili.test;
 
 import com.twitter.snowflake.sequence.IdSequence;
-import com.twitter.snowflake.support.IdSequenceFactory;
+import com.twitter.snowflake.support.ElasticIdSequenceFactory;
+import com.twitter.snowflake.support.MillisIdSequenceFactory;
+import com.twitter.snowflake.support.SecondsIdSequenceFactory;
 import com.twitter.snowflake.worker.SimpleWorkerIdAssigner;
 import com.twitter.snowflake.worker.WorkerIdAssigner;
 
+import java.util.concurrent.TimeUnit;
+
 public class SequenceTest {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		IdSequence sequence1 = SequenceHolder.sequence1;
-		for (int i = 0; i < 10; i++) {
-			long uid = sequence1.nextId();
-			String jsonText = sequence1.parse(uid);
-			System.out.println(jsonText);
-		}
 
-		IdSequence sequence2 = SequenceHolder.sequence2;
-		for (int i = 0; i < 10; i++) {
-			long uid = sequence2.nextId();
-			String jsonText = sequence2.parse(uid);
-			System.out.println(jsonText);
-		}
+        IdSequence secondsIdSequence = IdSequenceHolder.secondsIdSequence;
+        for (int i = 0; i < 10; i++) {
+            long uid = secondsIdSequence.nextId();
+            String jsonText = secondsIdSequence.parse(uid);
+            System.out.println(jsonText);
+        }
+        System.out.println("######################################################");
 
-	}
+        IdSequence millisIdSequence = IdSequenceHolder.millisIdSequence;
+        for (int i = 0; i < 10; i++) {
+            long uid = millisIdSequence.nextId();
+            String jsonText = millisIdSequence.parse(uid);
+            System.out.println(jsonText);
+        }
 
-	public static class SequenceHolder {
+    }
 
-		private static IdSequence sequence1 = null;
-		private static IdSequence sequence2 = null;
-		static {
-			IdSequenceFactory defaultFactory = new IdSequenceFactory();
-			// there are two ways to set worker id
+    public static class IdSequenceHolder {
 
-			// for simple
-			defaultFactory.setWorkerId(1L);
+        private static IdSequence secondsIdSequence;
 
-			// for complex , you can implements the WorkerIdAssigner to create
-			// worker id.
-			// e.g. use the simple implement in here.
-			WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
-			defaultFactory.setWorkerIdAssigner(workerIdAssigner);
-			sequence1 = defaultFactory.create();
+        private static IdSequence millisIdSequence;
 
-			// set custom options : TimeBits WorkerBits SeqBits
-			// attention : TimeBits + WorkerBits + SeqBits = 64 -1
-			IdSequenceFactory customFactory = new IdSequenceFactory();
+        private static IdSequence elasticIdSequence;
 
-			// be careful of modify the time length
-			// it should be 41 bits at least
-			customFactory.setTimeBits(41);
-			customFactory.setWorkerBits(5);
-			customFactory.setSeqBits(17);
+        static {
+            secondsIdSequence = new SecondsIdSequenceFactory().create(2L);
+            millisIdSequence = new MillisIdSequenceFactory().create(2L);
 
-			// set epoch time
-			customFactory.setEpochMillis(1483200000000L);
-			// set worker id
-			customFactory.setWorkerId(2L);
-			sequence2 = customFactory.create();
-		}
-	}
+            ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
 
+            // TimeBits + WorkerBits + SeqBits = 64 -1
+            elasticFactory.setTimeBits(41);
+            elasticFactory.setWorkerBits(10);
+            elasticFactory.setSeqBits(12);
+            elasticFactory.setTimeUnit(TimeUnit.MILLISECONDS);
+            elasticFactory.setEpochTimestamp(1483200000000L);
+
+            // for complex , you can implements the WorkerIdAssigner to create worker id.
+            // e.g. use the simple implement in here.
+            WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
+            // or set workerId directly
+//            elasticSequence = elasticFactory.create(1L);
+            elasticIdSequence = elasticFactory.create(workerIdAssigner);
+        }
+
+    }
 }

@@ -2,18 +2,13 @@
 
 [![JDK 1.7](https://img.shields.io/badge/JDK-1.7-green.svg "JDK 1.7")]()
 
-Java code implements Twitter SnowFlake , generate unique ID for Long type(64 bits).
+Twitter SnowFlake算法(Java)，生产有序的长整型数值id(64 bits).
 
-*Twitter SnowFlake算法(Java)，生产有序的数值id。*
+参考Twitter SnowFlake 和 百度 uid-generator.
 
 | sign | delta millisecond | worker node id  | sequence |
 | ---- |:-----------------:|:---------------:| --------:|
-| 1bit | 41bits            | 10bits          | 12bits   |
-
-
-Reference Twitter SnowFlake and Baidu uid-generator.
-
-*参考Twitter SnowFlake 和  百度  uid-generator.*
+| 1bit | {}bits            | {}bits          | {}bits   |
 
 ## Quick Start
 
@@ -21,86 +16,88 @@ Reference Twitter SnowFlake and Baidu uid-generator.
 
 ```xml
 <dependency>
-    <groupId>com.github.cnsvili</groupId>
+    <groupId>com.littlenb</groupId>
     <artifactId>snowflake</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
-### generate unique Id
+### step1. 使用ElasticIdSequenceFactory制定算法策略
 
-There are provider two ways to use IdSequence : use default options or custom options.
-
-*提供2种方式使用IdSequence : 使用默认的配置参数 或者  自定义参数*
-
-But in any case,you must be set worker id.
-
-*但是无论哪种方式，都需要设置worker id*
-
-#### set worker id
-
-There are two ways to set worker id.
++ 自定义算法策略
 
 ```Java
-    // create sequence factory
-	IdSequenceFactory defaultFactory = new IdSequenceFactory();
-	
-	// two ways to set worker id
 
-	// 1 for simple , use setter method
-	defaultFactory.setWorkerId(1L);
-
-	// 2 for complex , you can implements the Interface of the WorkerIdAssigner.
-	
-	// use the simple implement in here.
-	WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
-	
-	defaultFactory.setWorkerIdAssigner(workerIdAssigner);
-	
+    ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
+    // TimeBits + WorkerBits + SeqBits = 64 -1
+    elasticFactory.setTimeBits(41);
+    elasticFactory.setWorkerBits(10);
+    elasticFactory.setSeqBits(12);
+    // 时间单位
+    elasticFactory.setTimeUnit(TimeUnit.MILLISECONDS);
+    // 时间初始值，用于计算时间偏移量
+    elasticFactory.setEpochTimestamp(1483200000000L);
 ```
 
-#### use default options
++ MillisIdSequenceFactory
+
+| sign | delta millisecond | worker node id  | sequence |
+| ---- |:-----------------:|:---------------:| --------:|
+| 1bit | 41bits            | 10bits          | 12bits   |
+
++ SecondsIdSequenceFactory
+
+| sign | delta seconds     | worker node id  | sequence |
+| ---- |:-----------------:|:---------------:| --------:|
+| 1bit | 28bits            | 22bits          | 13bits   |
+
+### step2. 定制worker id策略,创建IdSequence
+
++ 直接指定
 
 ```Java
-    // 1. create sequence factory
-	IdSequenceFactory defaultFactory = new IdSequenceFactory();
-	
-	// 2. set worker id
-	defaultFactory.setWorkerId(1L);
-	
-	// 3. create sequence
-	IdSequence sequence = defaultFactory.create();
-	
-	// 4. generate id
-	long uid = sequence.nextId();
-	//126364026828492800
+
+    ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
+
+    //step1 ...
+    
+    IdSequence elasticSequence = elasticFactory.create(1L);
 ```
 
-#### custom options
++ 自定义算法(用于分布式系统)
+
+实现WorkerIdAssigner接口即可
 
 ```Java
 
-	// 1. create sequence factory
-	IdSequenceFactory customFactory = new IdSequenceFactory();
-	
-	// 2. set custom options : TimeBits WorkerBits SeqBits
-	// attention : TimeBits + WorkerBits + SeqBits = 64 -1
+    ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
 
-	// be careful of modify the time length
-	// it should be 41 bits at least
-	customFactory.setTimeBits(41);
-	customFactory.setWorkerBits(5);
-	customFactory.setSeqBits(17);
+    //step1 ...
+    
+    // you can implements the WorkerIdAssigner to create worker id.
+    // e.g. use the simple implement in here.
+    WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
+    IdSequence elasticIdSequence = elasticFactory.create(workerIdAssigner);
+```
 
-	
-	// set epoch time
-	customFactory.setEpochMillis(1483200000000L);
-	// set worker id
-	customFactory.setWorkerId(2L);
-	
-	// 3. create sequence
-	IdSequence sequence = customFactory.create();
-	// 4. generate id
-	long uid = sequence.nextId();
-	//126364026837139460
+## Attention
+
+IdSequence对象的调用应使用单例模式，由客户端自行实现。
+
+## License
+
+```text
+    Copyright [2017] [svili]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 ```

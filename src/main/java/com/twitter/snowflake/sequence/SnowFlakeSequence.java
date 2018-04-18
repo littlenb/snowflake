@@ -1,13 +1,14 @@
 package com.twitter.snowflake.sequence;
 
+import com.twitter.snowflake.exception.SnowFlakeException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import com.twitter.snowflake.exception.SnowFlakeException;
+import java.util.concurrent.TimeUnit;
 
 /***
  * The unique id has 64bits (long)
- * 
+ *
  * <pre>
  * {@code
  * +------+----------------------+----------------+-----------+
@@ -16,128 +17,154 @@ import com.twitter.snowflake.exception.SnowFlakeException;
  *   1bit        timeBits            workerBits      seqBits
  * }
  * </pre>
- * 
+ *
  * <b>Note that:</b> The total bits must be 64
- * 
+ *
  * <ul>
  * <li>sign: The highest bit is 0
  * <li>delta millisecond:
  * <li>worker id:
  * <li>sequence:
- * 
+ *
  * @author svili
  *
  */
-public class SnowFlakeSequence implements IdSequence{
+public class SnowFlakeSequence implements IdSequence {
 
-	private long epochMillis;
-	private long workerId;
+    private TimeUnit timeUnit;
 
-	/** Stable fields */
-	private BitsAllocator bitsAllocator;
+    private long epochTimestamp;
+    private long workerId;
 
-	/** Volatile fields caused by nextId() */
-	private long sequence = 0L;
-	private long lastMillis = -1L;
-	
-	public SnowFlakeSequence(int timeBits, int workerBits, int seqBits, long epochMillis, long workerId) {
-		// initialize bits allocator
-		bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits);
-		// initialize worker id
-		if (workerId > bitsAllocator.getMaxWorkerId()) {
-			throw new SnowFlakeException(
-					"Worker id " + workerId + " exceeds the max " + bitsAllocator.getMaxWorkerId());
-		}
-		this.workerId = workerId;
+    /**
+     * Stable fields
+     */
+    private BitsAllocator bitsAllocator;
 
-		// initialize epoch , unit as millisecond.
-		if (epochMillis > bitsAllocator.getMaxDeltaMillis()) {
-			throw new SnowFlakeException(
-					"epoch millisecond " + epochMillis + " exceeds the max " + bitsAllocator.getMaxDeltaMillis());
-		}
-		this.epochMillis = epochMillis;
-	}
+    /**
+     * Volatile fields caused by nextId()
+     */
+    private long sequence = 0L;
+    private long lastTimestamp = -1L;
 
-	/**
-	 * Generate unique id
-	 *
-	 * @return id
-	 * @throws SnowFlakeGenerateException
-	 *             in the case: Clock moved backwards; Exceeds the max timestamp
-	 */
-	@Override
-	public synchronized long nextId() {
-		long currentMillis = getCurrentMillis();
+    public SnowFlakeSequence(int timeBits, int workerBits, int seqBits, long epochTimestamp, long workerId) {
+        // initialize bits allocator
+        bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits);
+        // initialize worker id
+        if (workerId > bitsAllocator.getMaxWorkerId()) {
+            throw new SnowFlakeException(
+                    "Worker id " + workerId + " exceeds the max " + bitsAllocator.getMaxWorkerId());
+        }
+        this.workerId = workerId;
 
-		// Clock moved backwards, refuse to generate id
-		if (currentMillis < lastMillis) {
-			long refusedSeconds = lastMillis - currentMillis;
-			throw new SnowFlakeException("Clock moved backwards. Refusing for %d seconds", refusedSeconds);
-		}
+        // initialize epoch
+        if (epochTimestamp > bitsAllocator.getMaxDeltaTime()) {
+            throw new SnowFlakeException(
+                    "epoch timestamp " + epochTimestamp + " exceeds the max " + bitsAllocator.getMaxDeltaTime());
+        }
+        this.epochTimestamp = epochTimestamp;
+    }
 
-		// At the same second, increase sequence
-		if (currentMillis == lastMillis) {
-			sequence = (sequence + 1) & bitsAllocator.getMaxSequence();
-			// Exceed the max sequence, we wait the next second to generate id
-			if (sequence == 0) {
-				currentMillis = getNextMillis(lastMillis);
-			}
+    public SnowFlakeSequence(TimeUnit timeUnit,int timeBits, int workerBits, int seqBits, long epochTimestamp, long workerId) {
+        this.timeUnit = timeUnit;
 
-			// At the different second, sequence restart from zero
-		} else {
-			sequence = 0L;
-		}
+        // initialize bits allocator
+        bitsAllocator = new BitsAllocator(timeBits, workerBits, seqBits);
+        // initialize worker id
+        if (workerId > bitsAllocator.getMaxWorkerId()) {
+            throw new SnowFlakeException(
+                    "Worker id " + workerId + " exceeds the max " + bitsAllocator.getMaxWorkerId());
+        }
+        this.workerId = workerId;
 
-		lastMillis = currentMillis;
+//        // initialize epoch
+//        if (epochTimestamp > bitsAllocator.getMaxDeltaTime()) {
+//            throw new SnowFlakeException(
+//                    "epoch timestamp " + epochTimestamp + " exceeds the max " + bitsAllocator.getMaxDeltaTime());
+//        }
+        this.epochTimestamp = epochTimestamp;
+    }
 
-		// Allocate bits for ID
-		return bitsAllocator.allocate(currentMillis - epochMillis, workerId, sequence);
-	}
+    /**
+     * Generate unique id
+     *
+     * @return id
+     * @throws SnowFlakeException in the case: Clock moved backwards; Exceeds the max timestamp
+     */
+    @Override
+    public synchronized long nextId() {
+        long currentTime = getTimestamp();
 
-	@Override
-	public String parse(long id) {
-		long totalBits = BitsAllocator.TOTAL_BITS;
-		long signBits = bitsAllocator.getSignBits();
-		long timestampBits = bitsAllocator.getTimestampBits();
-		long workerIdBits = bitsAllocator.getWorkerIdBits();
-		long sequenceBits = bitsAllocator.getSequenceBits();
+        // Clock moved backwards, refuse to generate id
+        if (currentTime < lastTimestamp) {
+            long refusedTimeStamp = lastTimestamp - currentTime;
+            throw new SnowFlakeException("Clock moved backwards. Refusing for %s timeStamp", refusedTimeStamp);
+        }
 
-		// parse id
-		long sequence = (id << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
-		long workerId = (id << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
-		long deltaMillis = id >>> (workerIdBits + sequenceBits);
+        // At the same second, increase sequence
+        if (currentTime == lastTimestamp) {
+            sequence = (sequence + 1) & bitsAllocator.getMaxSequence();
+            // Exceed the max sequence, we wait the next second to generate id
+            if (sequence == 0) {
+                currentTime = getNextTime(lastTimestamp);
+            }
 
-		Date thatTime = new Date(epochMillis + deltaMillis);
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		String thatTimeStr = simpleDateFormat.format(thatTime);
+            // At the different second, sequence restart from zero
+        } else {
+            sequence = 0L;
+        }
 
-		// format as string
-		return String.format("{\"id\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}", id,
-				thatTimeStr, workerId, sequence);
-	}
+        lastTimestamp = currentTime;
 
-	/**
-	 * Get next millisecond
-	 */
-	private long getNextMillis(long lastTimestamp) {
-		long timestamp = getCurrentMillis();
-		while (timestamp <= lastTimestamp) {
-			timestamp = getCurrentMillis();
-		}
+        // Allocate bits for ID
+        return bitsAllocator.allocate(currentTime - epochTimestamp, workerId, sequence);
+    }
 
-		return timestamp;
-	}
+    @Override
+    public String parse(long id) {
+        long totalBits = BitsAllocator.TOTAL_BITS;
+        long signBits = bitsAllocator.getSignBits();
+        long timestampBits = bitsAllocator.getTimestampBits();
+        long workerIdBits = bitsAllocator.getWorkerIdBits();
+        long sequenceBits = bitsAllocator.getSequenceBits();
 
-	/**
-	 * Get current millisecond
-	 */
-	private long getCurrentMillis() {
-		long currentMilli = System.currentTimeMillis();
-		if (currentMilli - epochMillis > bitsAllocator.getMaxDeltaMillis()) {
-			throw new SnowFlakeException("Timestamp bits is exhausted. Refusing UID generate. Now: " + currentMilli);
-		}
+        // parse id
+        long sequence = (id << (totalBits - sequenceBits)) >>> (totalBits - sequenceBits);
+        long workerId = (id << (timestampBits + signBits)) >>> (totalBits - workerIdBits);
+        long deltaMillis = id >>> (workerIdBits + sequenceBits);
 
-		return currentMilli;
-	}
+        Date thatTime = new Date(timeUnit.toMillis(this.epochTimestamp + deltaMillis));
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String thatTimeStr = simpleDateFormat.format(thatTime);
+
+        // format as string
+        return String.format("{\"id\":\"%d\",\"timestamp\":\"%s\",\"workerId\":\"%d\",\"sequence\":\"%d\"}", id,
+                thatTimeStr, workerId, sequence);
+    }
+
+    /**
+     * Get next timestamp
+     */
+    private long getNextTime(long lastTimestamp){
+        long timestamp = getTimestamp();
+        while (timestamp <= lastTimestamp) {
+            timestamp = getTimestamp();
+        }
+
+        return timestamp;
+    }
+
+    /**
+     * Get current timestamp
+     */
+    private long getTimestamp() {
+        long millis = System.currentTimeMillis();
+        long timestamp = timeUnit.convert(millis, TimeUnit.MILLISECONDS);
+        if (timestamp - epochTimestamp > bitsAllocator.getMaxDeltaTime()) {
+            throw new SnowFlakeException("Timestamp bits is exhausted. Refusing UID generate. Now: " + timestamp);
+        }
+
+        return timestamp;
+    }
 
 }
