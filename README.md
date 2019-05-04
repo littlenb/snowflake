@@ -18,7 +18,7 @@ Twitter SnowFlake算法(Java)，生产有序的长整型数值id(64 bits).
 <dependency>
     <groupId>com.littlenb</groupId>
     <artifactId>snowflake</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
