@@ -57,11 +57,11 @@ Twitter SnowFlake算法(Java)，生产有序的长整型数值id(64 bits).
 
 ```Java
 
-    ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
+    ElasticIdGeneratorFactory elasticFactory = new ElasticIdGeneratorFactory();
 
     //step1 ...
     
-    IdSequence elasticSequence = elasticFactory.create(1L);
+    IdGenerator elasticGenerator = elasticFactory.create(1L);
 ```
 
 + 自定义算法(用于分布式系统)
@@ -70,14 +70,14 @@ Twitter SnowFlake算法(Java)，生产有序的长整型数值id(64 bits).
 
 ```Java
 
-    ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
+    ElasticIdGeneratorFactory elasticFactory = new ElasticIdGeneratorFactory();
 
     //step1 ...
     
     // you can implements the WorkerIdAssigner to create worker id.
     // e.g. use the simple implement in here.
     WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
-    IdSequence elasticIdSequence = elasticFactory.create(workerIdAssigner);
+    IdGenerator elasticIdGenerator = elasticFactory.create(workerIdAssigner);
 ```
 
 ## Attention
