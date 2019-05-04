@@ -1,9 +1,9 @@
 package com.svili.test;
 
-import com.twitter.snowflake.sequence.IdSequence;
-import com.twitter.snowflake.support.ElasticIdSequenceFactory;
-import com.twitter.snowflake.support.MillisIdSequenceFactory;
-import com.twitter.snowflake.support.SecondsIdSequenceFactory;
+import com.twitter.snowflake.sequence.IdGenerator;
+import com.twitter.snowflake.support.ElasticIdGeneratorFactory;
+import com.twitter.snowflake.support.MillisIdGeneratorFactory;
+import com.twitter.snowflake.support.SecondsIdGeneratorFactory;
 import com.twitter.snowflake.worker.SimpleWorkerIdAssigner;
 import com.twitter.snowflake.worker.WorkerIdAssigner;
 
@@ -13,37 +13,50 @@ public class SequenceTest {
 
     public static void main(String[] args) {
 
-
-        IdSequence secondsIdSequence = IdSequenceHolder.secondsIdSequence;
-        for (int i = 0; i < 10; i++) {
-            long uid = secondsIdSequence.nextId();
-            String jsonText = secondsIdSequence.parse(uid);
-            System.out.println(jsonText);
+        final IdGenerator secondsIdGenerator = IdSequenceHolder.secondsIdGenerator;
+        for (int i = 0; i < 100; i++) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long id = secondsIdGenerator.nextId();
+                    String jsonText = secondsIdGenerator.parse(id);
+                    System.out.println("secondsIdGenerator: " + Thread.currentThread() + ",id: " + id + ",JsonText: " + jsonText);
+                }
+            });
+             thread.start();
         }
+
         System.out.println("######################################################");
 
-        IdSequence millisIdSequence = IdSequenceHolder.millisIdSequence;
-        for (int i = 0; i < 10; i++) {
-            long uid = millisIdSequence.nextId();
-            String jsonText = millisIdSequence.parse(uid);
-            System.out.println(jsonText);
+        final IdGenerator millisIdGenerator = IdSequenceHolder.millisIdGenerator;
+        for (int i = 0; i < 100; i++) {
+
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long id = millisIdGenerator.nextId();
+                    String jsonText = millisIdGenerator.parse(id);
+                    System.out.println("millisIdGenerator: " + Thread.currentThread() + ",id: " + id + ",JsonText: " + jsonText);
+                }
+            });
+//            thread.start();
         }
 
     }
 
     public static class IdSequenceHolder {
 
-        private static IdSequence secondsIdSequence;
+        private static IdGenerator secondsIdGenerator;
 
-        private static IdSequence millisIdSequence;
+        private static IdGenerator millisIdGenerator;
 
-        private static IdSequence elasticIdSequence;
+        private static IdGenerator elasticIdGenerator;
 
         static {
-            secondsIdSequence = new SecondsIdSequenceFactory().create(2L);
-            millisIdSequence = new MillisIdSequenceFactory().create(2L);
+            secondsIdGenerator = new SecondsIdGeneratorFactory(1483200000L).create(2L);
+            millisIdGenerator = new MillisIdGeneratorFactory(1483200000000L).create(2L);
 
-            ElasticIdSequenceFactory elasticFactory = new ElasticIdSequenceFactory();
+            ElasticIdGeneratorFactory elasticFactory = new ElasticIdGeneratorFactory();
 
             // TimeBits + WorkerBits + SeqBits = 64 -1
             elasticFactory.setTimeBits(41);
@@ -57,7 +70,7 @@ public class SequenceTest {
             WorkerIdAssigner workerIdAssigner = new SimpleWorkerIdAssigner(1L);
             // or set workerId directly
 //            elasticSequence = elasticFactory.create(1L);
-            elasticIdSequence = elasticFactory.create(workerIdAssigner);
+            elasticIdGenerator = elasticFactory.create(workerIdAssigner);
         }
 
     }

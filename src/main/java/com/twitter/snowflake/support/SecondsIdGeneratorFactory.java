@@ -21,14 +21,14 @@ import java.util.concurrent.TimeUnit;
  *
  * @author svili
  **/
-public class SecondsIdSequenceFactory extends ElasticIdSequenceFactory{
+public class SecondsIdGeneratorFactory extends ElasticIdGeneratorFactory {
 
-    public SecondsIdSequenceFactory() {
+    public SecondsIdGeneratorFactory(long epochTimestamp) {
         super.timeBits = 28;
         super.workerBits = 22;
         super.seqBits = 13;
-        // epoch seconds,default: 2017-01-01 (seconds:1483200000L)
-        super.epochTimestamp = 1483200000L;
+        // epoch seconds
+        super.epochTimestamp = epochTimestamp;
         super.timeUnit = TimeUnit.SECONDS;
     }
 }

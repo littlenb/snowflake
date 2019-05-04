@@ -1,9 +1,8 @@
 package com.twitter.snowflake.support;
 
-import com.twitter.snowflake.sequence.IdSequence;
-import com.twitter.snowflake.sequence.SnowFlakeSequence;
+import com.twitter.snowflake.sequence.IdGenerator;
+import com.twitter.snowflake.sequence.SnowFlakeGenerator;
 import com.twitter.snowflake.worker.WorkerIdAssigner;
-
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author svili
  **/
-public class ElasticIdSequenceFactory implements IdSequenceFactory {
+public class ElasticIdGeneratorFactory implements IdGeneratorFactory {
 
     /**
      * Bits allocate
@@ -34,17 +33,17 @@ public class ElasticIdSequenceFactory implements IdSequenceFactory {
 
     protected TimeUnit timeUnit;
 
-    public ElasticIdSequenceFactory() {
+    public ElasticIdGeneratorFactory() {
     }
 
     @Override
-    public IdSequence create(WorkerIdAssigner workerIdAssigner) {
+    public IdGenerator create(WorkerIdAssigner workerIdAssigner) {
         return create(workerIdAssigner.assignWorkerId());
     }
 
     @Override
-    public IdSequence create(long workerId) {
-        return new SnowFlakeSequence(timeUnit, timeBits, workerBits, seqBits, epochTimestamp, workerId);
+    public IdGenerator create(long workerId) {
+        return new SnowFlakeGenerator(timeUnit, timeBits, workerBits, seqBits, epochTimestamp, workerId);
     }
 
     /* setter */
