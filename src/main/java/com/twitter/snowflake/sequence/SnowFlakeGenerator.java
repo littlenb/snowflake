@@ -121,6 +121,15 @@ public class SnowFlakeGenerator implements IdGenerator {
     }
 
     @Override
+    public synchronized long[] nextSegment(int size) {
+      long[] segment = new long[size];
+      for (int i = 0; i < size; i++) {
+        segment[i] = nextId();
+      }
+      return segment;
+    }
+
+    @Override
     public String parse(long id) {
         long totalBits = BitsAllocator.TOTAL_BITS;
         long signBits = bitsAllocator.getSignBits();
