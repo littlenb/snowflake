@@ -1,4 +1,4 @@
-package com.twitter.snowflake.support;
+package com.littlenb.snowflake.support;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  *
  * You can also specified the bits by setter method.
  *
- * @author svili
+ * @author sway.li
  **/
 public class SecondsIdGeneratorFactory extends ElasticIdGeneratorFactory {
 

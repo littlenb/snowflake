@@ -1,8 +1,8 @@
-package com.twitter.snowflake.support;
+package com.littlenb.snowflake.support;
 
-import com.twitter.snowflake.sequence.IdGenerator;
-import com.twitter.snowflake.sequence.SnowFlakeGenerator;
-import com.twitter.snowflake.worker.WorkerIdAssigner;
+import com.littlenb.snowflake.worker.WorkerIdAssigner;
+import com.littlenb.snowflake.sequence.IdGenerator;
+import com.littlenb.snowflake.sequence.SnowFlakeGenerator;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <b>Note that:</b> The total bits must be 64 -1
  *
- * @author svili
+ * @author sway.li
  **/
 public class ElasticIdGeneratorFactory implements IdGeneratorFactory {
 

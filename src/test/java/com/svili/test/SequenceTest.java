@@ -1,11 +1,11 @@
 package com.svili.test;
 
-import com.twitter.snowflake.sequence.IdGenerator;
-import com.twitter.snowflake.support.ElasticIdGeneratorFactory;
-import com.twitter.snowflake.support.MillisIdGeneratorFactory;
-import com.twitter.snowflake.support.SecondsIdGeneratorFactory;
-import com.twitter.snowflake.worker.SimpleWorkerIdAssigner;
-import com.twitter.snowflake.worker.WorkerIdAssigner;
+import com.littlenb.snowflake.sequence.IdGenerator;
+import com.littlenb.snowflake.support.ElasticIdGeneratorFactory;
+import com.littlenb.snowflake.support.MillisIdGeneratorFactory;
+import com.littlenb.snowflake.support.SecondsIdGeneratorFactory;
+import com.littlenb.snowflake.worker.SimpleWorkerIdAssigner;
+import com.littlenb.snowflake.worker.WorkerIdAssigner;
 
 import java.util.concurrent.TimeUnit;
 

@@ -1,9 +1,9 @@
-package com.twitter.snowflake.exception;
+package com.littlenb.snowflake.exception;
 
 /**
  * SnowFlakeException
  *
- * @author svili
+ * @author sway.li
  */
 public class SnowFlakeException extends RuntimeException {
 

@@ -1,6 +1,6 @@
-package com.twitter.snowflake.sequence;
+package com.littlenb.snowflake.sequence;
 
-import com.twitter.snowflake.exception.SnowFlakeException;
+import com.littlenb.snowflake.exception.SnowFlakeException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * <li>worker id:
  * <li>sequence:
  *
- * @author svili
+ * @author sway.li
  *
  */
 public class SnowFlakeGenerator implements IdGenerator {

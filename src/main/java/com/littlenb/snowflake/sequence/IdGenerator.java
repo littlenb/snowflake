@@ -1,9 +1,9 @@
-package com.twitter.snowflake.sequence;
+package com.littlenb.snowflake.sequence;
 
 /**
  * Represents a unique id generator.
  *
- * @author svili
+ * @author sway.li
  */
 public interface IdGenerator {
 

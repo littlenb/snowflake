@@ -4,11 +4,11 @@
 	<groupId>com.littlenb</groupId>
 	<artifactId>snowflake</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.4</version>
+	<version>1.0.5</version>
 
 	<name>snow-flake</name>
 	<description>Java code implements Twitter SnowFlake，generate unique ID for Long type(64 bits).</description>
-	<url>https://github.com/cnsvili/snowflake</url>
+	<url>https://github.com/svili365/snowflake</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,9 +79,9 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git@github.com:cnsvili/snowflake.git</connection>
-		<developerConnection>scm:git@github.com:cnsvili/snowflake.git</developerConnection>
-		<url>git@github.com:cnsvili/snowflake.git</url>
+		<connection>scm:git@github.com:svili365/snowflake.git</connection>
+		<developerConnection>scm:git@github.com:svili365/snowflake.git</developerConnection>
+		<url>git@github.com:svili365/snowflake.git</url>
 	</scm>
 
 	<profiles>

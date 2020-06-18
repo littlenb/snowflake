@@ -1,11 +1,11 @@
-package com.twitter.snowflake.worker;
+package com.littlenb.snowflake.worker;
 
-import com.twitter.snowflake.sequence.IdGenerator;
+import com.littlenb.snowflake.sequence.IdGenerator;
 
 /**
  * Represents a worker id assigner for {@link IdGenerator}
  * 
- * @author svili
+ * @author sway.li
  */
 public interface WorkerIdAssigner {
 

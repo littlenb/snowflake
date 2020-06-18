@@ -1,12 +1,12 @@
-package com.twitter.snowflake.sequence;
+package com.littlenb.snowflake.sequence;
 
-import com.twitter.snowflake.exception.SnowFlakeException;
+import com.littlenb.snowflake.exception.SnowFlakeException;
 
 /**
  * Allocate 64 bits for the Unique ID(long)<br>
  * sign (fixed 1bit) -> timestamp -> workerId -> sequence(within the same millisecond)
  *
- * @author svili
+ * @author sway.li
  */
 public class BitsAllocator {
 
